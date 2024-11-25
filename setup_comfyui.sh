@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Exit on error
+set -e
+
+echo "Starting ComfyUI server setup..."
+
+# Check if uv is installed, if not install it
+if ! command -v uv &> /dev/null; then
+    echo "Installing uv package manager..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    source "$HOME/.local/bin/env"
+fi
+
+# Check if the directory already exists
+if [ ! -d "ComfyUI" ]; then
+    echo "Cloning ComfyUI repository..."
+    git clone https://github.com/comfyanonymous/ComfyUI.git
+else
+    echo "ComfyUI directory already exists"
+fi
+
+# Navigate to the ComfyUI directory
+cd ComfyUI
+
+# Create virtual environment
+echo "Setting up virtual environment..."
+uv venv
+
+# Use the Python interpreter from the virtual environment directly
+VENV_PYTHON="$PWD/.venv/bin/python"
+
+# Install requirements using uv
+echo "Installing requirements..."
+uv pip install -r requirements.txt
+
+# Launch the server using the venv Python
+echo "Launching ComfyUI server..."
+"$VENV_PYTHON" main.py --port 6006 --listen 0.0.0.0
